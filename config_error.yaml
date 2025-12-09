@@ -1,0 +1,21 @@
+max_concurrent: 3
+
+jobs:
+  - id: "prepare_data"
+    cmd: "echo '[OK] Подготовка данных...' && sleep 1"
+    
+  - id: "process_step1"
+    cmd: "echo '[OK] Шаг 1 обработки...' && sleep 2"
+    needs: ["prepare_data"]
+    
+  - id: "process_step2_fail"
+    cmd: "echo '[ERROR] Шаг 2 - ИСКУССТВЕННАЯ ОШИБКА!' && exit 42"
+    needs: ["process_step1"]
+    
+  - id: "process_step3"
+    cmd: "echo '[НЕ ДОЛЖЕН ВЫПОЛНИТЬСЯ] Шаг 3...' && sleep 1"
+    needs: ["process_step2_fail"]
+    
+  - id: "finalize"
+    cmd: "echo '[НЕ ДОЛЖЕН ВЫПОЛНИТЬСЯ] Финализация...' && sleep 1"
+    needs: ["process_step3"]

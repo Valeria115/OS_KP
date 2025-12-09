@@ -1,0 +1,23 @@
+max_concurrent: 5  # Даем много, но семафоры ограничат
+
+semaphores:
+  - name: "gpu"
+    value: 1  # Только 1 одновременно!
+
+jobs:
+  - id: "start"
+    cmd: "echo 'Старт' && sleep 1"
+  
+  - id: "task_a"
+    cmd: "echo 'A start' && sleep 3 && echo 'A end'"
+    needs: ["start"]
+    semaphores: ["gpu"]  #ё Займет GPU
+    
+  - id: "task_b"
+    cmd: "echo 'B start' && sleep 3 && echo 'B end'"
+    needs: ["start"]
+    semaphores: ["gpu"]  # Будет ждать, пока A освободит GPU
+  
+  - id: "task_c"
+    cmd: "echo 'C' && sleep 1"
+    needs: ["task_a", "task_b"]

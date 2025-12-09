@@ -1,0 +1,34 @@
+max_concurrent: 3
+
+semaphores:
+  - name: "gpu"
+    value: 2
+  - name: "database"
+    value: 1
+
+jobs:
+  # СТАРТОВЫЙ джоб - нет needs
+  - id: "start"
+    cmd: "echo 'Стартовая задача' && sleep 1"
+  
+  # ПАРАЛЛЕЛЬНЫЕ ветки
+  - id: "task_a"
+    cmd: "echo 'Задача A (использует GPU)' && sleep 2"
+    needs: ["start"]
+    semaphores: ["gpu"]
+    
+  - id: "task_b"
+    cmd: "echo 'Задача B (использует БД)' && sleep 2"
+    needs: ["start"]
+    semaphores: ["database"]
+  
+  # СИНХРОНИЗАЦИЯ
+  - id: "task_c"
+    cmd: "echo 'Задача C (собирает результаты)' && sleep 1"
+    needs: ["task_a", "task_b"]
+    semaphores: ["gpu"]
+  
+  # ФИНАЛЬНЫЙ джоб - никто от него не зависит
+  - id: "finish"
+    cmd: "echo 'Финальная задача' && sleep 0.5"
+    needs: ["task_c"]
