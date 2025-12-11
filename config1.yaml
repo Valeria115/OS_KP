@@ -7,11 +7,10 @@ semaphores:
     value: 1
 
 jobs:
-  # СТАРТОВЫЙ джоб - нет needs
+  
   - id: "start"
     cmd: "echo 'Стартовая задача' && sleep 1"
-  
-  # ПАРАЛЛЕЛЬНЫЕ ветки
+
   - id: "task_a"
     cmd: "echo 'Задача A (использует GPU)' && sleep 2"
     needs: ["start"]
@@ -22,13 +21,11 @@ jobs:
     needs: ["start"]
     semaphores: ["database"]
   
-  # СИНХРОНИЗАЦИЯ
   - id: "task_c"
     cmd: "echo 'Задача C (собирает результаты)' && sleep 1"
     needs: ["task_a", "task_b"]
     semaphores: ["gpu"]
   
-  # ФИНАЛЬНЫЙ джоб - никто от него не зависит
   - id: "finish"
     cmd: "echo 'Финальная задача' && sleep 0.5"
     needs: ["task_c"]
